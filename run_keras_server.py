@@ -10,6 +10,8 @@ from skimage import transform
 import numpy as np
 import flask
 import io 
+import wget
+import os
 
 # initialize our Flask application and the Keras model
 app = flask.Flask(__name__)
@@ -66,8 +68,16 @@ def load_model(input_shape):
 
 	distance = Lambda(euclidean_distance, output_shape=eucl_dist_output_shape)([processed_a, processed_b])
 
+	model_path = 'model.hdf5'
+	exists = os.path.isfile(model_path)
+
+	if not exists:
+		print('Beginning file download with wget module...')
+		url = "https://docs.google.com/uc?export=download&id=1rWeDw9v3qcN6-GCpdEWNu0762vIyuTDm"
+		wget.download(url)
+
 	model = Model(inputs=[input_a, input_b], outputs=distance)
-	model.load_weights('best_model/model_weights_95.hdf5')
+	model.load_weights(model_path)
 	model._make_predict_function()
 
 def prepare_image(image):
